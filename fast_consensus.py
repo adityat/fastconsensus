@@ -301,8 +301,6 @@ if __name__ == "__main__":
 	if not os.path.exists('out_partitions'):
 		os.makedirs('out_partitions')
 
-	if args.alg == 'louvain':
-
 
 
 
