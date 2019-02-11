@@ -2,7 +2,7 @@
 
 Fast consensus is an implementation of the fast consensus clustering procedure laid out in - 
 
-The procedure is used to come up with a combined consensus, or *average*, result from multiple runs of a community detection algorithm that are shown to perform better than the original method. 
+The procedure generates *median* or consensus partitions from multiple runs of a community detection algorithm. Tests on artificial benchmarks show that consensus partitions are more accurate than the ones obtained by the direct application of the clustering algorithm.
 
 ## Prerequisites
 
@@ -10,8 +10,9 @@ The script requires the following:
 
 1. [Python 3.x](https://www.python.org/downloads/) 
 2. [Numpy](http://www.numpy.org/)
-3. [python-igraph](https://igraph.org/python/)
-4. [python-louvain](https://github.com/taynaud/python-louvain)
+3. [Networkx](https://networkx.github.io/)
+4. [python-igraph](https://igraph.org/python/)
+5. [python-louvain](https://github.com/taynaud/python-louvain)
 
 ## Usage
 
@@ -25,12 +26,25 @@ with the following options -
 ```
 -f filename.txt
 ```
-(Required) Where `filename.txt` is an edgelist of the network (connected nodes separated by space on different lines of the file). 
+(Required) where `filename.txt` is an edgelist of the network.
+
+The file can be of the form 
+```
+0 1 0.5
+0 4 1
+1 3 0.3
+.
+.
+.
+```
+
+where the first two numbers in each row are connected nodes and the third number is the edge weight. If only two numbers are provided the graph is treated as an unweighted graph. 
+
 
 ```
 --alg algorithm
 ```
-(Optional) Here `algorithm` is the community detection method used on the network and it can be one of `louvain`, `cnm`, `lpm`, `infomap`. If no algorithm is provided the script uses `louvain` for this purpose. 
+(Optional) Here `algorithm` is the community detection method used on the network and it can be one of `louvain` ([Louvain algorithm](https://arxiv.org/abs/0803.0476)), `cnm` ([Fast greedy modularity maximization](https://arxiv.org/abs/cond-mat/0408187)), `lpm` ([Label Propagation Method](https://arxiv.org/abs/0709.2938)), `infomap` ([Infomap](http://www.mapequation.org/code.html)). If no algorithm is provided the script uses `louvain` for this purpose. 
 
 ```
 -np n_p
@@ -40,14 +54,29 @@ with the following options -
 ```
 -t tau
 ```
-(Optional) `tau` is a float between `0` and `1`. Edges with weight less than `tau` are filtered out in each step of the algorithm. If no value is provided, an appropriate value is picked based on the algorithm.
+(Optional) `tau` is a float between `0` and `1`. Elements of the consensus matrix with weight less than `tau` are set to `0` in each step of the algorithm. If no value is provided, the code uses the value for which the chosen clustering algorithm gives the best performance on the [LFR benchmark graph](https://arxiv.org/abs/0805.4770) 
+
 ```
 -d delta
 ```
-(Optional) `delta` should be a float between `0.02` and `0.1`. The procedure ends when less than delta fraction of the edges have a weight not equal to 1. If no value is provided, delta is set to 0.02
+(Optional) `delta` should be a float between `0.02` and `0.1`. The procedure ends when less than `delta` fraction of the edges have a weight not equal to 1. If no value is provided, `delta` is set to `0.02`
+
+
+#### Example Usage
+
+```
+python fastconsensus.py -f examples/karate_club.txt --alg louvain -np 50 -t 0.2 -d 0.1
+```
+
+The file `examples/karate_club.txt` is provided. 
+
 
 ## Output
-A folder `out_partitions` is created with `n_p` different files. Each file represents a partition with each line in the files representing a community 
+A folder `out_partitions` is created with `n_p` different files. Each file represents a partition; each line in the file lists all nodes belonging to a community.
 
-
-
+For example, a run with `n_p = 2` will create two files `1.txt` and `2.txt`. Each file will be in the form:
+```
+0 1 2 5 7 8 9
+3 4 6 10 11
+```
+This represents 2 consensus communities : `{0, 1, 2, 5, 7, 8, 9}` and `{3, 4, 6, 10, 11}`
