@@ -38,7 +38,7 @@ The file can be of the form
 .
 ```
 
-where the first two numbers in each row are connected nodes and the third number is the edge weight. If only two numbers are provided the graph is treated as an unweighted graph. 
+where the first two numbers in each row are connected nodes and the third number is the edge weight. If only two numbers are provided the graph is treated as unweighted. 
 
 
 ```
@@ -54,7 +54,7 @@ where the first two numbers in each row are connected nodes and the third number
 ```
 -t tau
 ```
-(Optional) `tau` is a float between `0` and `1`. Elements of the consensus matrix with weight less than `tau` are set to `0` in each step of the algorithm. If no value is provided, the code uses the value for which the chosen clustering algorithm gives the best performance on the [LFR benchmark graph](https://arxiv.org/abs/0805.4770) 
+(Optional) `tau` is a float between `0` and `1`. Elements of the consensus matrix with weight less than `tau` are set to zero in each step of the algorithm. If no value is provided, the code uses the value for which the chosen clustering algorithm gives the best performance on the [LFR benchmark graph](https://arxiv.org/abs/0805.4770) 
 
 ```
 -d delta
@@ -79,4 +79,4 @@ For example, a run with `n_p = 2` will create two files `1.txt` and `2.txt`. Eac
 0 1 2 5 7 8 9
 3 4 6 10 11
 ```
-This represents 2 consensus communities : `{0, 1, 2, 5, 7, 8, 9}` and `{3, 4, 6, 10, 11}`
+This represents a partition with two communities : `{0, 1, 2, 5, 7, 8, 9}` and `{3, 4, 6, 10, 11}`
