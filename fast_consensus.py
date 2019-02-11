@@ -69,6 +69,22 @@ def group_to_partition(partition):
 
 	return part_dict.values()
 
+def check_arguments(args):
+
+	if(args.d > 0.1):
+		print('delta is too high. Allowed values are between 0.02 and 0.1')
+		return False
+	if(args.d < 0.02):
+		print('delta is too low. Allowed values are between 0.02 and 0.1')
+		return False
+	if(args.alg not in ('louvain', 'lpm', 'cnm', 'infomap')):
+		print('Incorrect algorithm entered. run with -h for help')
+		return False
+	if (args.t > 1 or args.t < 0):
+		print('Incorrect tau. run with -h for help')
+		return False
+
+	return True
 
 
 def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.02):
@@ -270,7 +286,6 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 				break
 
 		else:
-			print('Incorrect algorithm choose. Choose one from - louvain, cnm, infomap or lpm')
 			break
 
 	if (algorithm == 'louvain'):
@@ -312,11 +327,15 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 
-	G = nx.read_edgelist(args.f)
-
 	default_tau = {'louvain': 0.2, 'cnm': 0.7 ,'infomap': 0.6, 'lpm': 0.8}
 	if (args.t == None):
-		args.t = default_tau[args.alg]
+		args.t = default_tau.get(args.alg, 0.2)
+	
+	if check_arguments(args) == False:
+
+		quit()
+
+	G = nx.read_edgelist(args.f)
 
 	output = fast_consensus(G, algorithm = args.alg, n_p = args.np, thresh = args.t, delta = args.d)
 
