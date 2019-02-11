@@ -312,7 +312,7 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 
-	G = nx.karate_club_graph()
+	G = nx.read_edgelist(args.f)
 
 	default_tau = {'louvain': 0.2, 'cnm': 0.7 ,'infomap': 0.6, 'lpm': 0.8}
 	if (args.t == None):
