@@ -1,24 +1,29 @@
 import networkx as nx
-from itertools import groupby
 import numpy as np
 import itertools
-import matplotlib.pyplot as plt
-import subprocess
 import sys
 import os
 import random
 import igraph as ig
-import LFR
 from networkx.algorithms import community
 import networkx.algorithms.isolate
-import time
 import community as cm
 import math
 import random
 import argparse
-from collections import defaultdict
 
-def check_consensus_graph(G, n_p = 20, delta = 0.02):
+
+def check_consensus_graph(G, n_p, delta):
+	'''
+	This function checks if the networkx graph has converged. 
+	Input:
+	G: networkx graph
+	n_p: number of partitions while creating G
+	delta: if more than delta fraction of the edges have weight != n_p then returns False, else True
+	'''
+
+
+
 	count = 0
 	
 	for wt in nx.get_edge_attributes(G, 'weight').values():
@@ -26,16 +31,17 @@ def check_consensus_graph(G, n_p = 20, delta = 0.02):
 			count += 1
 
 	if count > delta*G.number_of_edges():
-		print('edges = ' + str(count/G.number_of_edges()))
 		return False
 
-	print('edges = ' + str(count/G.number_of_edges()))
 	return True
 
 
 
 def nx_to_igraph(Gnx):
-	
+	'''
+	Function takes in a network Graph, Gnx and returns the equivalent
+	igraph graph g
+	'''
 	g = ig.Graph()
 	g.add_vertices(sorted(Gnx.nodes()))
 	g.add_edges(sorted(Gnx.edges()))
@@ -45,10 +51,25 @@ def nx_to_igraph(Gnx):
 	return g
 
 
+def group_to_partition(partition):
+	'''
+	Takes in a partition, dictionary in the format {node: community_membership}
+	Returns a nested list of communities [[comm1], [comm2], ...... [comm_n]]
+	'''
 
-def write_partition(partition, filename):
-	with open(filename, 'w') as f:
-		
+	part_dict = {}
+
+	for index, value in partition.items():
+
+		if value in part_dict:
+			part_dict[value].append(index)
+		else:
+			part_dict[value] = [index]
+
+
+	return part_dict.values()
+
+
 
 def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.02):
 
@@ -283,25 +304,33 @@ if __name__ == "__main__":
 
 	parser = argparse.ArgumentParser(description='Process some integers.')
 
-	parser.add_argument('-f', metavar='f', type=str, nargs = '?', help='file with edgelist')
+	parser.add_argument('-f', metavar='filename', type=str, nargs = '?', help='file with edgelist')
 	parser.add_argument('-np', metavar='n_p', type=int, nargs = '?', default=20, help='number of input partitions for the algorithm (Default value: 20)')
-	parser.add_argument('-t', metavar='tau', type=float, nargs = '?', default = 0.25, help='used for filtering weak edges')
+	parser.add_argument('-t', metavar='tau', type=float, nargs = '?', help='used for filtering weak edges')
 	parser.add_argument('-d', metavar='del', type=float,  nargs = '?', default = 0.02, help='convergence parameter (default = 0.02). Converges when less than delta proportion of the edges are with wt = 1')
 	parser.add_argument('--alg', metavar='alg', type=str, nargs = '?', default = 'louvain' , help='choose from \'louvain\' , \'cnm\' , \'lpm\' , \'infomap\' ')
 
 	args = parser.parse_args()
 
-	
-	#G = nx.read_edgelist(args.f)
 	G = nx.karate_club_graph()
 
-	output = fast_consensus(G, algorithm = args.alg, n_p = args.np, thresh = args.t, delta = args.d)
+	default_tau = {'louvain': 0.2, 'cnm': 0.7 ,'infomap': 0.6, 'lpm': 0.8}
+	if (args.t == None):
+		args.t = default_tau[args.alg]
 
+	output = fast_consensus(G, algorithm = args.alg, n_p = args.np, thresh = args.t, delta = args.d)
 
 	if not os.path.exists('out_partitions'):
 		os.makedirs('out_partitions')
 
 
+	if(args.alg == 'louvain'):
+		partition = group_to_partition(partition)
 
-
+	i = 0
+	for partition in output:
+		i += 1
+		with open('out_partitions/' + str(i) , 'a') as f:
+			for community in partition:
+				print(*community, file = f)
 
