@@ -19,7 +19,7 @@ The script requires the following:
 You can run the script with 
 
 ```
-python fastconsensus.py -f path_to_file/edgelist.txt [--alg algorithm] [-np n_p] [-t tau] [-d delta]
+python fast_consensus.py -f path_to_file/edgelist.txt [--alg algorithm] [-np n_p] [-t tau] [-d delta]
 ```
 
 with the following options -
@@ -65,7 +65,7 @@ where the first two numbers in each row are connected nodes and the third number
 #### Example Usage
 
 ```
-python fastconsensus.py -f examples/karate_club.txt --alg louvain -np 50 -t 0.2 -d 0.1
+python fast_consensus.py -f examples/karate_club.txt --alg louvain -np 50 -t 0.2 -d 0.1
 ```
 
 The file `examples/karate_club.txt` is provided. 
