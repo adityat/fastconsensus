@@ -335,20 +335,22 @@ if __name__ == "__main__":
 
 		quit()
 
-	G = nx.read_edgelist(args.f)
+	G = nx.read_edgelist(args.f, nodetype=int)
 
 	output = fast_consensus(G, algorithm = args.alg, n_p = args.np, thresh = args.t, delta = args.d)
 
 	if not os.path.exists('out_partitions'):
 		os.makedirs('out_partitions')
 
-
-	if(args.alg == 'cnm'):
-		output= group_to_partition(output)
-
+	
+	if(args.alg == 'louvain'):
+		for i in range(len(output)):
+			output[i] = group_to_partition(output[i])
+		
+	
 	i = 0
 	for partition in output:
 		i += 1
-		with open('out_partitions/' + str(i) , 'a') as f:
+		with open('out_partitions/' + str(i) , 'w') as f:
 			for community in partition:
 				print(*community, file = f)
