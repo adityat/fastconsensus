@@ -344,7 +344,7 @@ if __name__ == "__main__":
 
 
 	if(args.alg == 'louvain'):
-		partition = group_to_partition(partition)
+		output= group_to_partition(output)
 
 	i = 0
 	for partition in output:
@@ -352,4 +352,3 @@ if __name__ == "__main__":
 		with open('out_partitions/' + str(i) , 'a') as f:
 			for community in partition:
 				print(*community, file = f)
-
