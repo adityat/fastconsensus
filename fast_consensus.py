@@ -71,11 +71,11 @@ def group_to_partition(partition):
 
 def check_arguments(args):
 
-	if(args.d > 0.1):
-		print('delta is too high. Allowed values are between 0.02 and 0.1')
+	if(args.d > 0.2):
+		print('delta is too high. Allowed values are between 0.02 and 0.2')
 		return False
 	if(args.d < 0.02):
-		print('delta is too low. Allowed values are between 0.02 and 0.1')
+		print('delta is too low. Allowed values are between 0.02 and 0.2')
 		return False
 	if(args.alg not in ('louvain', 'lpm', 'cnm', 'infomap')):
 		print('Incorrect algorithm entered. run with -h for help')
@@ -343,7 +343,7 @@ if __name__ == "__main__":
 		os.makedirs('out_partitions')
 
 
-	if(args.alg == 'louvain'):
+	if(args.alg == 'cnm'):
 		output= group_to_partition(output)
 
 	i = 0
