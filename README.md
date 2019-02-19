@@ -76,7 +76,7 @@ The file `examples/karate_club.txt` is provided.
 ## Output
 A folder `out_partitions` is created with `n_p` different files. Each file represents a partition; each line in the file lists all nodes belonging to a community.
 
-For example, a run with `n_p = 2` will create two files `1.txt` and `2.txt`. Each file will be in the form:
+For example, a run with `n_p = 2` will create two files `1` and `2`. Each file will be in the form:
 ```
 0 1 2 5 7 8 9
 3 4 6 10 11
