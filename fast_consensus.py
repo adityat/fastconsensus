@@ -11,6 +11,7 @@ import community as cm
 import math
 import random
 import argparse
+import multiprocessing as mp
 
 
 def check_consensus_graph(G, n_p, delta):
@@ -87,8 +88,22 @@ def check_arguments(args):
 	return True
 
 
-def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.02):
+def louvain_community_detection(networkx_graph):
+	"""
+	Do louvain community detection
+	:param networkx_graph:
+	:return:
+	"""
+	return cm.partition_at_level(cm.generate_dendrogram(networkx_graph, randomize=True, weight='weight'), 0)
 
+def get_yielded_graph(graph, times):
+    """
+    Creates an iterator containing the same graph object multiple times. Can be used for applying multiprocessing map
+    """
+	for _ in range(times):
+		yield graph
+
+def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.02):
 	graph = G.copy()
 	L = G.number_of_edges()
 	N = G.number_of_nodes()
@@ -98,7 +113,6 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 
 	while(True):
 
-
 		if (algorithm == 'louvain'):
 
 			nextgraph = graph.copy()
@@ -106,7 +120,8 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 			for u,v in nextgraph.edges():
 				nextgraph[u][v]['weight'] = 0.0
 
-			communities_all = [cm.partition_at_level(cm.generate_dendrogram(graph, randomize = True, weight = 'weight'), 0) for i in range(n_p)]
+			with mp.Pool(processes=mp.cpu_count()) as pool:
+                communities_all = pool.map(louvain_community_detection, get_yielded_graph(graph, n_p))
 
 			for node,nbr in graph.edges():
 						
@@ -289,7 +304,9 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 			break
 
 	if (algorithm == 'louvain'):
-		return [cm.partition_at_level(cm.generate_dendrogram(graph, randomize = True, weight = 'weight'), 0) for _ in range(n_p)]
+        with mp.Pool(processes=mp.cpu_count()) as pool:
+            communities_all = pool.map(louvain_community_detection, get_yielded_graph(graph, n_p))
+        return communities_all
 	if algorithm == 'infomap':
 		return [{frozenset(c) for c in nx_to_igraph(graph).community_infomap().as_cover()} for _ in range(n_p)]
 	if algorithm == 'lpm':
