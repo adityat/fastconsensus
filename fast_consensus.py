@@ -11,7 +11,8 @@ import community as cm
 import math
 import random
 import argparse
-
+import multiprocessing as mp
+import leidenalg
 
 def check_consensus_graph(G, n_p, delta):
 	'''
@@ -77,15 +78,53 @@ def check_arguments(args):
 	if(args.d < 0.02):
 		print('delta is too low. Allowed values are between 0.02 and 0.2')
 		return False
-	if(args.alg not in ('louvain', 'lpm', 'cnm', 'infomap')):
+	if(args.alg not in ('louvain', 'lpm', 'cnm', 'infomap', 'leiden')):
 		print('Incorrect algorithm entered. run with -h for help')
 		return False
 	if (args.t > 1 or args.t < 0):
 		print('Incorrect tau. run with -h for help')
 		return False
-
+	
 	return True
 
+def communities_to_dict(communities):
+	"""
+	Creates a [node] -> [community] lookup
+	"""
+	result = {}
+	community_index = 0
+	for c in communities:
+		community_mapping = ({str(node):community_index for index, node in enumerate(c)})
+	
+		result = {**result, **community_mapping}
+		community_index += 1
+	return result 
+
+def edges_lookup_table_by_node(edges):
+	"""
+	Creates a [node] -> [[u,v]] lookup
+	"""
+	result = {}
+	for u, v in edges:
+		if u in result:
+			result[u].append((u,v))
+		else:
+			result[u] = [(u,v)]
+			
+		if v in result:
+			result[v].append((v,u))
+		else:
+			result[v] = [(v,u)]
+	return result
+
+
+def do_leiden_community_detection(data):
+	networkx_graph, seed = data
+	return leidenalg.find_partition(nx_to_igraph(networkx_graph), leidenalg.ModularityVertexPartition, weights='weight',  seed=seed, n_iterations=1).as_cover()
+
+def get_graph_and_seed(graph, times):
+	for seed in range(times):
+		yield graph, seed
 
 def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.02):
 
@@ -133,9 +172,6 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 			if check_consensus_graph(nextgraph, n_p = n_p, delta = delta):
 				break
 
-
-
-
 			for _ in range(L):
 
 				node = np.random.choice(nextgraph.nodes())
@@ -161,6 +197,62 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 				
 			graph = nextgraph.copy()
 
+
+			if check_consensus_graph(nextgraph, n_p = n_p, delta = delta):
+				break
+				
+		elif algorithm == 'leiden':
+			nextgraph = graph.copy()
+			
+			for u,v in nextgraph.edges():
+				nextgraph[u][v]['weight'] = 0.0
+
+			with mp.Pool(processes=n_p) as pool: 
+				communities = pool.map(do_leiden_community_detection, get_graph_and_seed(graph, n_p))
+			
+			for i in range(n_p):
+				node_community_lookup = communities_to_dict(communities[i])
+				for community_index, _ in enumerate(communities[i]):
+					for node, nbr in graph.edges():
+						if node in node_community_lookup and nbr in node_community_lookup and node_community_lookup[node] == node_community_lookup[nbr]:
+							if node_community_lookup[node] != community_index:
+								# only count each community once
+								continue
+							nextgraph[node][nbr]['weight'] += 1
+
+			remove_edges = []
+			for u,v in nextgraph.edges():
+				if nextgraph[u][v]['weight'] < thresh*n_p:
+					remove_edges.append((u, v))
+			nextgraph.remove_edges_from(remove_edges)
+
+			if check_consensus_graph(nextgraph, n_p = n_p, delta = delta):
+				break
+
+			for i in range(n_p):
+				node_community_lookup = communities_to_dict(communities[i])
+				n_graph_nodes = len(nextgraph.nodes())
+				
+				edges_lookup_table = edges_lookup_table_by_node(nextgraph.edges)
+				
+				for _ in range(L):
+					random_node_index = random.randint(1, n_graph_nodes)
+					neighbors = [a[1] for a in edges_lookup_table.get(str(random_node_index), [])]
+				
+					if (len(neighbors) >= 2):
+						a, b = random.sample(set(neighbors), 2)
+
+						if not nextgraph.has_edge(a, b):
+							nextgraph.add_edge(a, b, weight = 0)
+
+							if a in node_community_lookup and b in node_community_lookup and node_community_lookup[a] == node_community_lookup[b]:
+								nextgraph[a][b]['weight'] += 1
+
+			for node in nx.isolates(nextgraph):
+				nbr, weight = sorted(graph[node].items(), key=lambda edge: edge[1]['weight'])[0]
+				nextgraph.add_edge(node, nbr, weight = weight['weight'])
+
+			graph = nextgraph.copy()
 
 			if check_consensus_graph(nextgraph, n_p = n_p, delta = delta):
 				break
@@ -290,6 +382,10 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 
 	if (algorithm == 'louvain'):
 		return [cm.partition_at_level(cm.generate_dendrogram(graph, randomize = True, weight = 'weight'), 0) for _ in range(n_p)]
+	if algorithm == 'leiden':
+		with mp.Pool(processes=n_p) as pool: 
+			communities = pool.map(do_leiden_community_detection, get_graph_and_seed(graph, n_p))
+		return communities
 	if algorithm == 'infomap':
 		return [{frozenset(c) for c in nx_to_igraph(graph).community_infomap().as_cover()} for _ in range(n_p)]
 	if algorithm == 'lpm':
