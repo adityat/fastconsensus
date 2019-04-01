@@ -2,8 +2,10 @@
 
 Fast consensus is an implementation of the fast consensus clustering procedure laid out in - 
 
-* Aditya Tandon, Aiiad Albeshri, Vijey Thayananthan, Wadee Alhalabi and Santo Fortunato: “[Fast consensus clustering in complex networks](http://arxiv.org/abs/1902.04014)”, **arXiv**:1902.04014; 2019
+* Aditya Tandon, Aiiad Albeshri, Vijey Thayananthan, Wadee Alhalabi and Santo Fortunato: “[Fast consensus clustering in complex networks](10.1103/PhysRevE.99.042301)”, **Phys. Rev. E.**:1902.04014; 2019
 
+If you use the script please cite this paper.
+ 
 The procedure generates *median* or *consensus* partitions from multiple runs of a community detection algorithm. Tests on artificial benchmarks show that consensus partitions are more accurate than the ones obtained by the direct application of the clustering algorithm.
 
 ## Requirements
