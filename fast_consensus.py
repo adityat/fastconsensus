@@ -131,8 +131,6 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
                             communities = communities_all[i]
                             if communities[node] == communities[nbr]:
                                 nextgraph[node][nbr]['weight'] += 1
-                            else:
-                                nextgraph[node][nbr]['weight'] = graph[node][nbr]['weight']
 
 
 
@@ -269,9 +267,6 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
                         for c in communities[i]:
                             if node in c and nbr in c:
                                 nextgraph[a][b]['weight'] += 1
-
-                    else:
-                        nextgraph[a][b]['weight'] = graph[a][b]['weight']
 
 
             remove_edges = []
