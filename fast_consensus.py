@@ -348,7 +348,8 @@ if __name__ == "__main__":
         quit()
 
     G = nx.read_edgelist(args.f, nodetype=int)
-
+    G = nx.convert_node_labels_to_integers(G, label_attribute = 'name')
+    
     output = fast_consensus(G, algorithm = args.alg, n_p = args.np, thresh = args.t, delta = args.d)
 
     if not os.path.exists('out_partitions'):
@@ -365,4 +366,6 @@ if __name__ == "__main__":
         i += 1
         with open('out_partitions/' + str(i) , 'w') as f:
             for community in partition:
-                print(*community, file = f)
+                for node in community:
+                    print(G.node[node]['name'], end = '\t', file = f)
+                print(file = f)
