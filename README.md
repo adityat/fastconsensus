@@ -42,7 +42,7 @@ The file can be of the form
 .
 ```
 
-where the first two numbers in each row are connected nodes and the third number is the edge weight. If only two numbers are provided the graph is treated as unweighted. 
+where the first two numbers in each row are connected nodes and the third number is the edge weight. If only two numbers are provided the graph is treated as unweighted. The nodes must be integers starting from 0
 
 
 ```
