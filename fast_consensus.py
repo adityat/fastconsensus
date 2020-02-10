@@ -121,7 +121,7 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
                 nextgraph[u][v]['weight'] = 0.0
 
             with mp.Pool(processes=mp.cpu_count()) as pool:
-                communities_all = pool.map(louvain_community_detection, get_yielded_graph(graph, n_p))
+                communities_all = [cm.partition_at_level(cm.generate_dendrogram(graph, randomize = True, weight = 'weight'), 0) for i in range(n_p)]
 
             for node,nbr in graph.edges():
                         
@@ -299,9 +299,7 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
             break
 
     if (algorithm == 'louvain'):
-        with mp.Pool(processes=mp.cpu_count()) as pool:
-            communities_all = pool.map(louvain_community_detection, get_yielded_graph(graph, n_p))
-        return communities_all
+        return [cm.partition_at_level(cm.generate_dendrogram(graph, randomize = True, weight = 'weight'), 0) for _ in range(n_p)]
     if algorithm == 'infomap':
         return [{frozenset(c) for c in nx_to_igraph(graph).community_infomap().as_cover()} for _ in range(n_p)]
     if algorithm == 'lpm':
