@@ -48,7 +48,7 @@ where the first two numbers in each row are connected nodes and the third number
 ```
 --alg algorithm
 ```
-(Optional) Here `algorithm` is the community detection method used on the network and it can be one of `louvain` ([Louvain algorithm](https://arxiv.org/abs/0803.0476)), `cnm` ([Fast greedy modularity maximization](https://arxiv.org/abs/cond-mat/0408187)), `lpm` ([Label Propagation Method](https://arxiv.org/abs/0709.2938)), `infomap` ([Infomap](http://www.mapequation.org/code.html)). If no algorithm is provided the script uses `louvain` for this purpose. 
+(Optional) Here `algorithm` is the community detection method used on the network and it can be one of `louvain` ([Louvain algorithm](https://arxiv.org/abs/0803.0476)), `lpm` ([Label Propagation Method](https://arxiv.org/abs/0709.2938)), `infomap` ([Infomap](http://www.mapequation.org/code.html)). If no algorithm is provided the script uses `louvain` for this purpose. 
 
 ```
 -np n_p
