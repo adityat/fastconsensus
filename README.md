@@ -14,7 +14,7 @@ The script requires the following:
 
 1. [Python 3.x](https://www.python.org/downloads/) 
 2. [Numpy](http://www.numpy.org/)
-3. [Networkx](https://networkx.github.io/)
+3. [networkx==1.9](https://networkx.github.io/)
 4. [python-igraph](https://igraph.org/python/)
 5. [python-louvain](https://github.com/taynaud/python-louvain)
 
