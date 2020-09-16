@@ -168,8 +168,8 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 
 
             for node in nx.isolates(nextgraph):
-                    nbr, weight = sorted(graph[node].items(), key=lambda edge: edge[1]['weight'])[0]
-                    nextgraph.add_edge(node, nbr, weight = weight['weight'])
+                nbr, weight = sorted(graph[node].items(), key=lambda edge: edge[1]['weight'])[0]
+                nextgraph.add_edge(node, nbr, weight = weight['weight'])
                 
                 
             graph = nextgraph.copy()
