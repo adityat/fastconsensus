@@ -4,14 +4,6 @@ Fastconsensus is a Python package that implements a fast consensus clustering al
 
 ## Installation
 
-### Using pip
-
-You can install fastconsensus using pip:
-
-```bash
-pip install fastconsensus
-```
-
 ### From source
 
 To install fastconsensus from source, follow these steps:
