@@ -1,0 +1,13 @@
+name: fastconsensus
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - igraph
+  - python-igraph
+  - cairocffi
+  - numpy
+  - matplotlib
+  - jupyter
+  - pip
