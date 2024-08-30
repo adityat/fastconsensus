@@ -4,21 +4,22 @@ import math
 
 def calculate_modularity(graph: ig.Graph, partition: Dict[int, Any]) -> float:
     """
-    Calculate the modularity of a given partition.
-    
-    :param graph: igraph Graph object
-    :param partition: Partition as a dictionary mapping node ids to community ids
+    Calculate modularity of a partition.
+
+    :param graph: Graph object
+    :param partition: Node to community mapping
     :return: Modularity score
     """
     return graph.modularity(list(partition.values()))
 
 def compare_partitions(partition1: Dict[int, Any], partition2: Dict[int, Any]) -> float:
     """
-    Compare two partitions using Normalized Mutual Information (NMI).
-    
-    :param partition1: First partition as a dictionary mapping node ids to community ids
-    :param partition2: Second partition as a dictionary mapping node ids to community ids
+    Compare partitions using Normalized Mutual Information (NMI).
+
+    :param partition1: First partition
+    :param partition2: Second partition
     :return: NMI score
+    :raises ValueError: If partitions have different node sets
     """
     if set(partition1.keys()) != set(partition2.keys()):
         raise ValueError("Partitions must have the same set of nodes")
