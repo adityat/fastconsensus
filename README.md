@@ -60,7 +60,7 @@ To run the example notebooks:
    jupyter notebook
    ```
 
-3. Open the `example_usage.ipynb` notebook and run the cells to see fastconsensus in action.
+3. Open and run the notebook
 
 ## Contributing
 
